@@ -3,6 +3,9 @@ import os
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
+from langchain.embeddings.openai import OpenAIEmbeddings  # we will be embedding it using OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+
 
 def main():
     load_dotenv()
@@ -35,6 +38,11 @@ def main():
         chunks = text_splitter.split_text(text)  # Split incoming text and return chunks.
         # st.write(chunks)
 
+        # embedding chunks and creating knowledge_base
+
+        embeddings = OpenAIEmbeddings()  # using embeddings from OpenAI
+        knowledge_base = FAISS.from_texts(chunks, embeddings)  # using FAISS along with embedding
+        # to enable semantic search on the knowledge base
 
 if __name__ == '__main__':
     main()
