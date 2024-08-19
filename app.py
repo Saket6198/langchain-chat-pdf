@@ -1,10 +1,11 @@
 import streamlit as st
-import os
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings  # we will be embedding it using OpenAIEmbeddings
 from langchain.vectorstores import FAISS
+from langchain.chains.question_answering import load_qa_chain
+from langchain.llms import OpenAI
 
 
 def main():
@@ -43,6 +44,18 @@ def main():
         embeddings = OpenAIEmbeddings()  # using embeddings from OpenAI
         knowledge_base = FAISS.from_texts(chunks, embeddings)  # using FAISS along with embedding
         # to enable semantic search on the knowledge base
+
+        # accept input
+
+        user_question = st.text_input("Ask a question about your PDF: ")
+        if user_question:
+            docs = knowledge_base.similarity_search(user_question)
+            # st.write(docs)
+
+            llm = OpenAI()
+            chain = load_qa_chain(llm, chain_type="stuff")
+            response = chain.run(input_documents=docs, question=user_question)
+            st.write(response)
 
 if __name__ == '__main__':
     main()
